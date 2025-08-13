@@ -13,14 +13,14 @@ from .config import settings
 from .models import (
     TextInput, 
     SentimentResponse, 
-    ReviewAnalysisResponse, 
+    TweetAnalysisResponse, 
     HealthResponse,
     TokenWeight,
-    ReviewItem,
-    ReviewSummary
+    TweetItem,
+    TweetSummary
 )
 from .ml_model import sentiment_model
-from .amazon_service import amazon_service
+from .twitter_service import twitter_service
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -82,11 +82,11 @@ async def lifespan(app: FastAPI):
     model_info = sentiment_model.get_model_info()
     logger.info(f"Model info: {model_info}")
     
-    # Check Amazon service status
-    if amazon_service.is_available():
-        logger.info("Amazon service is available")
+    # Check Twitter service status
+    if twitter_service.is_available():
+        logger.info("Twitter service is available")
     else:
-        logger.info("Amazon service is not available")
+        logger.info("Twitter service is not available")
     
     yield
     
@@ -97,7 +97,7 @@ async def lifespan(app: FastAPI):
 # Create FastAPI app
 app = FastAPI(
     title="Sentiview API",
-    description="Real-time sentiment analysis API with machine learning and Amazon reviews integration",
+    description="Real-time sentiment analysis API with machine learning and Twitter integration",
     version="1.0.0",
     lifespan=lifespan,
     docs_url="/docs",
@@ -135,7 +135,7 @@ async def root():
         "features": {
             "sentiment_analysis": True,
             "vader_fusion": vader_analyzer is not None,
-            "amazon_integration": amazon_service.is_available(),
+            "twitter_integration": twitter_service.is_available(),
             "batch_processing": True
         }
     }
@@ -150,14 +150,14 @@ async def health_check():
         return HealthResponse(
             status="ok",
             model_loaded=sentiment_model.is_loaded,
-            amazon_enabled=amazon_service.is_available()
+            twitter_enabled=twitter_service.is_available()
         )
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         return HealthResponse(
             status="degraded",
             model_loaded=False,
-            amazon_enabled=False
+            twitter_enabled=False
         )
 
 
@@ -424,81 +424,94 @@ async def predict_sentiment_batch(texts: List[str]):
         raise HTTPException(status_code=500, detail=f"Batch prediction failed: {str(e)}")
 
 
-@app.get("/reviews/analyze", response_model=ReviewAnalysisResponse)
-async def analyze_reviews(
-    query: str = Query(..., description="Search query for Amazon reviews", min_length=1, max_length=500),
-    limit: int = Query(25, ge=1, le=100, description="Number of reviews to analyze")
+@app.get("/tweets/analyze", response_model=TweetAnalysisResponse)
+async def analyze_tweets(
+    query: str = Query(..., description="Search query or hashtag", min_length=1, max_length=500),
+    limit: int = Query(25, ge=1, le=100, description="Number of tweets to analyze")
 ):
-    """Analyze sentiment of Amazon product reviews."""
+    """Analyze sentiment of recent tweets."""
     try:
-        # Check if Amazon integration is available
-        if not amazon_service.is_available():
-            raise HTTPException(
-                status_code=503,
-                detail="Amazon service is not available. Please check the service configuration."
-            )
+        # Check if Twitter integration is available
+        if not twitter_service.is_available():
+            if not settings.enable_twitter:
+                raise HTTPException(
+                    status_code=503, 
+                    detail="Twitter integration is disabled. Set ENABLE_TWITTER=true and provide TWITTER_BEARER_TOKEN to enable."
+                )
+            else:
+                raise HTTPException(
+                    status_code=503,
+                    detail="Twitter service is not available. Please check your Twitter API credentials."
+                )
         
         start_time = time.time()
-        logger.info(f"Starting Amazon review analysis for query: '{query}' with limit: {limit}")
+        logger.info(f"Starting Twitter analysis for query: '{query}' with limit: {limit}")
         
-        # Analyze reviews
-        analyzed_reviews, sentiment_summary = await amazon_service.analyze_reviews_sentiment(query, limit)
+        # Analyze tweets
+        analyzed_tweets, sentiment_summary = await twitter_service.analyze_tweets_sentiment(query, limit)
         
         # Convert to response format
-        review_items = [
-            ReviewItem(
-                id=review["id"],
-                text=review["text"],
-                label=review["label"],
-                score=review["score"],
-                created_at=review["created_at"]
+        tweet_items = [
+            TweetItem(
+                id=tweet["id"],
+                text=tweet["text"],
+                label=tweet["label"],
+                score=tweet["score"],
+                created_at=tweet["created_at"]
             )
-            for review in analyzed_reviews
+            for tweet in analyzed_tweets
         ]
         
-        summary = ReviewSummary(
+        summary = TweetSummary(
             pos=sentiment_summary["pos"],
             neu=sentiment_summary["neu"],
             neg=sentiment_summary["neg"]
         )
         
         processing_time = time.time() - start_time
-        logger.info(f"Amazon review analysis completed in {processing_time:.3f}s for {len(review_items)} reviews")
+        logger.info(f"Twitter analysis completed in {processing_time:.3f}s for {len(tweet_items)} tweets")
         
-        return ReviewAnalysisResponse(
-            items=review_items,
+        return TweetAnalysisResponse(
+            items=tweet_items,
             summary=summary
         )
         
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Amazon review analysis failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Amazon review analysis failed: {str(e)}")
+        logger.error(f"Twitter analysis failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Twitter analysis failed: {str(e)}")
 
 
-@app.get("/amazon/status")
-async def get_amazon_status():
-    """Get Amazon service status and information."""
+@app.get("/twitter/status")
+async def get_twitter_status():
+    """Get Twitter service status and rate limit information."""
     try:
+        if not settings.enable_twitter:
+            return {
+                "enabled": False,
+                "available": False,
+                "reason": "Twitter integration is disabled in settings"
+            }
+        
         status = {
-            "enabled": settings.enable_amazon,
-            "available": amazon_service.is_available(),
-            "authenticated": amazon_service.is_authenticated,
+            "enabled": settings.enable_twitter,
+            "available": twitter_service.is_available(),
+            "authenticated": twitter_service.is_authenticated,
         }
         
-        if amazon_service.is_available():
-            rate_limit = amazon_service.get_rate_limit_status()
+        if twitter_service.is_available():
+            rate_limit = twitter_service.get_rate_limit_status()
             status.update(rate_limit)
         else:
-            status["reason"] = "Amazon service not available"
+            status["reason"] = "Twitter service not available - check bearer token"
         
         return status
         
     except Exception as e:
-        logger.error(f"Error getting Amazon status: {e}")
+        logger.error(f"Error getting Twitter status: {e}")
         return {
-            "enabled": settings.enable_amazon,
+            "enabled": settings.enable_twitter,
             "available": False,
             "error": str(e)
         }
@@ -512,10 +525,10 @@ async def get_api_stats():
         "model_type": "fallback" if sentiment_model.use_fallback else "trained",
         "model_loaded": sentiment_model.is_loaded,
         "vader_available": vader_analyzer is not None,
-        "amazon_available": amazon_service.is_available(),
+        "twitter_available": twitter_service.is_available(),
         "settings": {
             "cors_origins": settings.cors_origins,
-            "amazon_enabled": settings.enable_amazon,
+            "twitter_enabled": settings.enable_twitter,
             "environment": settings.environment
         }
     }

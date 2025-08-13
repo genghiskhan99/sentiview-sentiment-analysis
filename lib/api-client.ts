@@ -7,7 +7,7 @@ interface SentimentResponse {
   }>
 }
 
-interface ReviewAnalysisResponse {
+interface TweetAnalysisResponse {
   items: Array<{
     id: string
     text: string
@@ -22,7 +22,7 @@ interface ReviewAnalysisResponse {
   }
 }
 
-interface AmazonStatus {
+interface TwitterStatus {
   enabled: boolean
   available: boolean
   authenticated?: boolean
@@ -53,13 +53,13 @@ class ApiClient {
     return response.json()
   }
 
-  async analyzeReviews(query: string, limit = 25): Promise<ReviewAnalysisResponse> {
+  async analyzeTweets(query: string, limit = 25): Promise<TweetAnalysisResponse> {
     const params = new URLSearchParams({
       query,
       limit: limit.toString(),
     })
 
-    const response = await fetch(`${this.baseUrl}/reviews/analyze?${params}`)
+    const response = await fetch(`${this.baseUrl}/tweets/analyze?${params}`)
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
@@ -69,8 +69,8 @@ class ApiClient {
     return response.json()
   }
 
-  async getAmazonStatus(): Promise<AmazonStatus> {
-    const response = await fetch(`${this.baseUrl}/amazon/status`)
+  async getTwitterStatus(): Promise<TwitterStatus> {
+    const response = await fetch(`${this.baseUrl}/twitter/status`)
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
@@ -79,7 +79,7 @@ class ApiClient {
     return response.json()
   }
 
-  async healthCheck(): Promise<{ status: string; model_loaded: boolean; amazon_enabled: boolean }> {
+  async healthCheck(): Promise<{ status: string; model_loaded: boolean; twitter_enabled: boolean }> {
     const response = await fetch(`${this.baseUrl}/health`)
 
     if (!response.ok) {

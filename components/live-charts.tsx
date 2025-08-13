@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { SentimentPie } from "./sentiment-pie"
 import { SentimentTimeline } from "./sentiment-timeline"
 
-interface ReviewData {
+interface TweetData {
   id: string
   text: string
   label: "positive" | "negative" | "neutral"
@@ -14,11 +14,11 @@ interface ReviewData {
 }
 
 interface LiveChartsProps {
-  reviews: ReviewData[]
+  tweets: TweetData[]
   isLive?: boolean
 }
 
-export function LiveCharts({ reviews, isLive = false }: LiveChartsProps) {
+export function LiveCharts({ tweets, isLive = false }: LiveChartsProps) {
   const [chartData, setChartData] = useState({
     pie: { positive: 0, negative: 0, neutral: 0 },
     timeline: [] as Array<{
@@ -32,9 +32,9 @@ export function LiveCharts({ reviews, isLive = false }: LiveChartsProps) {
 
   useEffect(() => {
     // Calculate pie chart data
-    const sentimentCounts = reviews.reduce(
-      (acc, review) => {
-        acc[review.label]++
+    const sentimentCounts = tweets.reduce(
+      (acc, tweet) => {
+        acc[tweet.label]++
         return acc
       },
       { positive: 0, negative: 0, neutral: 0 },
@@ -42,13 +42,13 @@ export function LiveCharts({ reviews, isLive = false }: LiveChartsProps) {
 
     // Generate timeline data (group by time intervals)
     const timelineMap = new Map()
-    reviews.forEach((review) => {
-      const date = new Date(review.created_at)
+    tweets.forEach((tweet) => {
+      const date = new Date(tweet.created_at)
       const timeKey = `${date.getHours()}:${date.getMinutes().toString().padStart(2, "0")}`
 
       if (!timelineMap.has(timeKey)) {
         timelineMap.set(timeKey, {
-          timestamp: review.created_at,
+          timestamp: tweet.created_at,
           time: timeKey,
           positive: 0,
           negative: 0,
@@ -57,7 +57,7 @@ export function LiveCharts({ reviews, isLive = false }: LiveChartsProps) {
       }
 
       const entry = timelineMap.get(timeKey)
-      entry[review.label]++
+      entry[tweet.label]++
     })
 
     const timelineData = Array.from(timelineMap.values()).sort(
@@ -68,12 +68,12 @@ export function LiveCharts({ reviews, isLive = false }: LiveChartsProps) {
       pie: sentimentCounts,
       timeline: timelineData,
     })
-  }, [reviews])
+  }, [tweets])
 
-  const totalReviews = reviews.length
-  const positivePercentage = totalReviews > 0 ? ((chartData.pie.positive / totalReviews) * 100).toFixed(1) : "0"
-  const neutralPercentage = totalReviews > 0 ? ((chartData.pie.neutral / totalReviews) * 100).toFixed(1) : "0"
-  const negativePercentage = totalReviews > 0 ? ((chartData.pie.negative / totalReviews) * 100).toFixed(1) : "0"
+  const totalTweets = tweets.length
+  const positivePercentage = totalTweets > 0 ? ((chartData.pie.positive / totalTweets) * 100).toFixed(1) : "0"
+  const neutralPercentage = totalTweets > 0 ? ((chartData.pie.neutral / totalTweets) * 100).toFixed(1) : "0"
+  const negativePercentage = totalTweets > 0 ? ((chartData.pie.negative / totalTweets) * 100).toFixed(1) : "0"
 
   return (
     <div className="space-y-6">
@@ -82,8 +82,8 @@ export function LiveCharts({ reviews, isLive = false }: LiveChartsProps) {
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
-              <div className="text-2xl font-bold">{totalReviews}</div>
-              <p className="text-sm text-muted-foreground">Total Reviews</p>
+              <div className="text-2xl font-bold">{totalTweets}</div>
+              <p className="text-sm text-muted-foreground">Total Tweets</p>
             </div>
           </CardContent>
         </Card>
