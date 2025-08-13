@@ -1,11 +1,11 @@
 # Sentiview - Real-time Sentiment Analysis Platform
 
-A comprehensive web application for real-time sentiment analysis of text and Twitter streams, built with Next.js and FastAPI.
+A comprehensive web application for real-time sentiment analysis of text and Amazon product reviews, built with Next.js and FastAPI.
 
 ## 🚀 Features
 
 - **Text Sentiment Analysis**: Analyze sentiment of any text input with confidence scores
-- **Live Twitter Analysis**: Real-time sentiment analysis of Twitter streams
+- **Amazon Reviews Analysis**: Real-time sentiment analysis of Amazon product reviews
 - **Interactive Visualizations**: Pie charts, timelines, and word clouds
 - **Machine Learning Pipeline**: Custom ML models with TextBlob fallback
 - **Responsive Design**: Modern UI built with Next.js and Tailwind CSS
@@ -38,7 +38,7 @@ sentiview/
 - **scikit-learn** - Machine learning
 - **NLTK & spaCy** - Natural language processing
 - **TextBlob** - Sentiment analysis fallback
-- **Tweepy** - Twitter API integration
+- **Pandas** - Data processing for Amazon reviews
 - **Uvicorn** - ASGI server
 
 ## 🚀 Quick Start
@@ -75,9 +75,7 @@ sentiview/
    NEXT_PUBLIC_API_URL=http://localhost:8000
    
    # Backend (services/api/.env)
-   TWITTER_BEARER_TOKEN=your_token
-   TWITTER_API_KEY=your_key
-   TWITTER_API_SECRET=your_secret
+   # No external API keys required - uses publicly available datasets
    \`\`\`
 
 ### Docker Deployment
@@ -101,7 +99,7 @@ The API documentation is available at `http://localhost:8000/docs` when running 
 
 - `POST /analyze` - Analyze text sentiment
 - `POST /analyze/batch` - Batch text analysis
-- `GET /tweets/analyze` - Analyze Twitter stream
+- `GET /reviews/analyze` - Analyze Amazon reviews data
 - `GET /health` - Health check
 - `GET /model/info` - Model information
 
@@ -112,13 +110,10 @@ The API documentation is available at `http://localhost:8000/docs` when running 
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `NEXT_PUBLIC_API_URL` | Backend API URL | Yes |
-| `TWITTER_BEARER_TOKEN` | Twitter API Bearer Token | Optional |
-| `TWITTER_API_KEY` | Twitter API Key | Optional |
-| `TWITTER_API_SECRET` | Twitter API Secret | Optional |
 
 ### Model Training
 
-Train a custom sentiment model:
+Train a custom sentiment model using Amazon reviews data:
 
 \`\`\`bash
 cd services/api
