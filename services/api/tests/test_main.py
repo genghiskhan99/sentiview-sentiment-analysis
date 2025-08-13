@@ -13,7 +13,7 @@ def test_health_endpoint():
     assert "status" in data
     assert data["status"] == "ok"
     assert "model_loaded" in data
-    assert "twitter_enabled" in data
+    assert "amazon_enabled" in data
 
 
 def test_predict_endpoint():
@@ -44,7 +44,7 @@ def test_predict_long_text():
     assert response.status_code == 422  # Should exceed max length
 
 
-def test_tweets_endpoint_disabled():
-    """Test tweets endpoint when Twitter is disabled."""
-    response = client.get("/tweets/analyze?query=test&limit=10")
+def test_reviews_endpoint_disabled():
+    """Test reviews endpoint when Amazon integration is disabled."""
+    response = client.get("/reviews/analyze?query=test&limit=10")
     assert response.status_code == 503  # Service unavailable
