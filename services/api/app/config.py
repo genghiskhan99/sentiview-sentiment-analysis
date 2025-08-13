@@ -11,9 +11,9 @@ class Settings(BaseSettings):
     # Model configuration
     model_path: str = "./models/sentiment_lr_tfidf.pkl"
     
-    # Twitter integration
-    enable_twitter: bool = False
-    twitter_bearer_token: str = ""
+    # Amazon integration
+    enable_amazon: bool = True
+    amazon_dataset_url: str = "https://drive.google.com/uc?export=download&id=1SERc309kmcEGhsqhuztIE_ZaqJGku-WQ"
     
     # CORS configuration
     cors_origins: List[str] = ["*"]
@@ -28,9 +28,8 @@ class Settings(BaseSettings):
         
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # Auto-enable Twitter if bearer token is provided
-        if self.twitter_bearer_token and not self.enable_twitter:
-            self.enable_twitter = True
+        # Amazon integration is enabled by default
+        self.enable_amazon = True
 
 
 settings = Settings()

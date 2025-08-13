@@ -8,11 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { LiveCharts } from "@/components/live-charts"
-import { Loader2, AlertCircle, Twitter } from "lucide-react"
+import { Loader2, AlertCircle, ShoppingBag } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { apiClient } from "@/lib/api-client"
 
-interface TweetData {
+interface ReviewData {
   id: string
   text: string
   label: "positive" | "negative" | "neutral"
@@ -20,32 +20,32 @@ interface TweetData {
   created_at: string
 }
 
-export default function LiveTweetsPage() {
+export default function LiveReviewsPage() {
   const [query, setQuery] = useState("")
   const [limit, setLimit] = useState("25")
-  const [tweets, setTweets] = useState<TweetData[]>([])
+  const [reviews, setReviews] = useState<ReviewData[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [twitterStatus, setTwitterStatus] = useState<{
+  const [amazonStatus, setAmazonStatus] = useState<{
     enabled: boolean
     available: boolean
     reason?: string
   } | null>(null)
   const { toast } = useToast()
 
-  // Check Twitter status on component mount
+  // Check Amazon status on component mount
   useEffect(() => {
-    checkTwitterStatus()
+    checkAmazonStatus()
   }, [])
 
-  const checkTwitterStatus = async () => {
+  const checkAmazonStatus = async () => {
     try {
-      const status = await apiClient.getTwitterStatus()
-      setTwitterStatus(status)
+      const status = await apiClient.getAmazonStatus()
+      setAmazonStatus(status)
     } catch (error) {
-      console.error("Failed to check Twitter status:", error)
-      setTwitterStatus({ enabled: false, available: false, reason: "Failed to check status" })
+      console.error("Failed to check Amazon status:", error)
+      setAmazonStatus({ enabled: false, available: false, reason: "Failed to check status" })
     }
   }
 
@@ -53,7 +53,7 @@ export default function LiveTweetsPage() {
     if (!query.trim()) {
       toast({
         title: "Invalid Query",
-        description: "Please enter a search term or hashtag",
+        description: "Please enter a search term or product category",
         variant: "destructive",
       })
       return
@@ -64,17 +64,17 @@ export default function LiveTweetsPage() {
     setError(null)
 
     try {
-      const result = await apiClient.analyzeTweets(query, Number.parseInt(limit))
-      setTweets(result.items as TweetData[])
+      const result = await apiClient.analyzeReviews(query, Number.parseInt(limit))
+      setReviews(result.items as ReviewData[])
 
       toast({
         title: "Analysis Complete",
-        description: `Analyzed ${result.items.length} tweets for "${query}"`,
+        description: `Analyzed ${result.items.length} reviews for "${query}"`,
       })
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to analyze tweets"
+      const errorMessage = error instanceof Error ? error.message : "Failed to analyze reviews"
       setError(errorMessage)
-      setTweets([])
+      setReviews([])
 
       toast({
         title: "Analysis Failed",
@@ -99,27 +99,27 @@ export default function LiveTweetsPage() {
     }
   }
 
-  // Show Twitter status warning if not available
-  if (twitterStatus && !twitterStatus.available) {
+  // Show Amazon status warning if not available
+  if (amazonStatus && !amazonStatus.available) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Live Tweet Analysis</h1>
-            <p className="text-muted-foreground">Analyze sentiment in real-time Twitter streams</p>
+            <h1 className="text-3xl font-bold mb-2">Live Amazon Review Analysis</h1>
+            <p className="text-muted-foreground">Analyze sentiment in Amazon product reviews</p>
           </div>
 
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <Twitter className="h-12 w-12 text-muted-foreground mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Twitter Integration Unavailable</h2>
+              <ShoppingBag className="h-12 w-12 text-muted-foreground mb-4" />
+              <h2 className="text-xl font-semibold mb-2">Amazon Integration Unavailable</h2>
               <p className="text-muted-foreground text-center mb-4">
-                {twitterStatus.reason || "Twitter integration is not properly configured"}
+                {amazonStatus.reason || "Amazon integration is not properly configured"}
               </p>
               <p className="text-sm text-muted-foreground text-center">
-                To enable Twitter analysis, configure the TWITTER_BEARER_TOKEN in your environment settings.
+                Amazon reviews service is currently unavailable. Please try again later.
               </p>
-              <Button onClick={checkTwitterStatus} className="mt-4">
+              <Button onClick={checkAmazonStatus} className="mt-4">
                 Check Status Again
               </Button>
             </CardContent>
@@ -133,23 +133,23 @@ export default function LiveTweetsPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Live Tweet Analysis</h1>
-          <p className="text-muted-foreground">Analyze sentiment in real-time Twitter streams</p>
+          <h1 className="text-3xl font-bold mb-2">Live Amazon Review Analysis</h1>
+          <p className="text-muted-foreground">Analyze sentiment in Amazon product reviews</p>
         </div>
 
         {/* Search Form */}
         <Card className="mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Twitter className="h-5 w-5" />
-              Search Tweets
+              <ShoppingBag className="h-5 w-5" />
+              Search Reviews
             </CardTitle>
-            <CardDescription>Enter a hashtag or search query to analyze recent tweets</CardDescription>
+            <CardDescription>Enter a product name or category to analyze Amazon reviews</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-4">
               <Input
-                placeholder="Enter hashtag or search term (e.g., #AI, coffee, etc.)"
+                placeholder="Enter product name or category (e.g., smartphone, headphones, etc.)"
                 className="flex-1"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -161,10 +161,10 @@ export default function LiveTweetsPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="10">10 tweets</SelectItem>
-                  <SelectItem value="25">25 tweets</SelectItem>
-                  <SelectItem value="50">50 tweets</SelectItem>
-                  <SelectItem value="100">100 tweets</SelectItem>
+                  <SelectItem value="10">10 reviews</SelectItem>
+                  <SelectItem value="25">25 reviews</SelectItem>
+                  <SelectItem value="50">50 reviews</SelectItem>
+                  <SelectItem value="100">100 reviews</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -172,12 +172,12 @@ export default function LiveTweetsPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing Stream...
+                  Analyzing Reviews...
                 </>
               ) : (
                 <>
-                  <Twitter className="mr-2 h-4 w-4" />
-                  Analyze Stream
+                  <ShoppingBag className="mr-2 h-4 w-4" />
+                  Analyze Reviews
                 </>
               )}
             </Button>
@@ -198,51 +198,51 @@ export default function LiveTweetsPage() {
               </Card>
             )}
 
-            {tweets.length > 0 && (
+            {reviews.length > 0 && (
               <>
                 {/* Live Charts */}
                 <div className="mb-8">
-                  <LiveCharts tweets={tweets} isLive={false} />
+                  <LiveCharts reviews={reviews} isLive={false} />
                 </div>
 
-                {/* Tweets Table */}
+                {/* Reviews Table */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Recent Tweets</CardTitle>
+                    <CardTitle>Recent Reviews</CardTitle>
                     <CardDescription>Sentiment analysis results for "{query}"</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Tweet</TableHead>
+                          <TableHead>Review</TableHead>
                           <TableHead>Sentiment</TableHead>
                           <TableHead>Score</TableHead>
                           <TableHead>Time</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {tweets.slice(0, 10).map((tweet) => (
-                          <TableRow key={tweet.id}>
+                        {reviews.slice(0, 10).map((review) => (
+                          <TableRow key={review.id}>
                             <TableCell className="max-w-md">
-                              <p className="truncate">{tweet.text}</p>
+                              <p className="truncate">{review.text}</p>
                             </TableCell>
                             <TableCell>
-                              <Badge variant={getLabelVariant(tweet.label)} className="capitalize">
-                                {tweet.label}
+                              <Badge variant={getLabelVariant(review.label)} className="capitalize">
+                                {review.label}
                               </Badge>
                             </TableCell>
-                            <TableCell>{(tweet.score * 100).toFixed(1)}%</TableCell>
+                            <TableCell>{(review.score * 100).toFixed(1)}%</TableCell>
                             <TableCell className="text-muted-foreground">
-                              {new Date(tweet.created_at).toLocaleTimeString()}
+                              {new Date(review.created_at).toLocaleTimeString()}
                             </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
                     </Table>
-                    {tweets.length > 10 && (
+                    {reviews.length > 10 && (
                       <div className="mt-4 text-center text-sm text-muted-foreground">
-                        Showing 10 of {tweets.length} tweets
+                        Showing 10 of {reviews.length} reviews
                       </div>
                     )}
                   </CardContent>
@@ -250,12 +250,12 @@ export default function LiveTweetsPage() {
               </>
             )}
 
-            {!isLoading && !error && tweets.length === 0 && (
+            {!isLoading && !error && reviews.length === 0 && (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
-                  <Twitter className="h-8 w-8 text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">No tweets found for "{query}"</p>
-                  <p className="text-sm text-muted-foreground mt-2">Try a different search term or hashtag</p>
+                  <ShoppingBag className="h-8 w-8 text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">No reviews found for "{query}"</p>
+                  <p className="text-sm text-muted-foreground mt-2">Try a different product name or category</p>
                 </CardContent>
               </Card>
             )}
