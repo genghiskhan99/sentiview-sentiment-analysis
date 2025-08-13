@@ -6,7 +6,7 @@ FastAPI backend service for sentiment analysis with machine learning capabilitie
 
 - **Enhanced Sentiment Analysis**: ML model + VADER fusion with confidence scores
 - **Multiple Model Support**: Amazon reviews, augmented models, and custom training
-- **Amazon Reviews Integration**: Real-time Amazon product review analysis with rate limiting
+- **Twitter Integration**: Real-time Twitter stream analysis with rate limiting
 - **Batch Processing**: Efficient batch text analysis
 - **Token Analysis**: Feature importance and interpretability
 - **RESTful API**: Comprehensive endpoints with OpenAPI documentation
@@ -46,11 +46,12 @@ ENVIRONMENT=development
 LOG_LEVEL=info
 MODEL_PATH=./models/sentiment_lr_tfidf.pkl
 
-# Amazon Integration (Optional)
-AMAZON_ACCESS_KEY_ID=your_access_key_id
-AMAZON_SECRET_ACCESS_KEY=your_secret_access_key
-AMAZON_REGION=us-east-1
-AMAZON_DATASET_URL=your_dataset_url
+# Twitter API (Optional)
+TWITTER_BEARER_TOKEN=your_bearer_token
+TWITTER_API_KEY=your_api_key
+TWITTER_API_SECRET=your_api_secret
+TWITTER_ACCESS_TOKEN=your_access_token
+TWITTER_ACCESS_TOKEN_SECRET=your_access_token_secret
 \`\`\`
 
 ### Model Training Options
@@ -112,12 +113,12 @@ Response with VADER fusion:
 }
 \`\`\`
 
-### Amazon Reviews Analysis
+### Twitter Analysis
 
-**POST /reviews/analyze**
+**POST /tweets/analyze**
 \`\`\`json
 {
-  "query": "smartphone reviews",
+  "query": "python programming",
   "count": 50
 }
 \`\`\`
@@ -125,7 +126,7 @@ Response with VADER fusion:
 Response:
 \`\`\`json
 {
-  "query": "smartphone reviews",
+  "query": "python programming",
   "total_analyzed": 50,
   "sentiment_distribution": {
     "positive": 32,
@@ -134,7 +135,7 @@ Response:
   },
   "average_confidence": 0.78,
   "processing_time": 2.34,
-  "reviews": [...]
+  "tweets": [...]
 }
 \`\`\`
 
@@ -155,7 +156,7 @@ pytest --cov=app tests/
 
 # Run specific test categories
 pytest tests/test_ml_model.py -v
-pytest tests/test_amazon_integration.py -v
+pytest tests/test_twitter_integration.py -v
 \`\`\`
 
 ## 🔍 Model Architecture
@@ -186,7 +187,7 @@ pytest tests/test_amazon_integration.py -v
 - **Batch Processing**: Vectorized operations for multiple texts
 - **Async Processing**: Non-blocking I/O operations
 - **Feature Extraction**: Efficient token importance calculation
-- **Rate Limiting**: Amazon API compliance
+- **Rate Limiting**: Twitter API compliance
 
 ## 🛡️ Security & Reliability
 
@@ -204,7 +205,7 @@ services/api/
 │   ├── main.py              # FastAPI app with VADER fusion
 │   ├── ml_model.py          # Enhanced ML pipeline
 │   ├── preprocessing.py     # Text preprocessing
-│   ├── amazon_service.py   # Amazon integration
+│   ├── twitter_service.py   # Twitter integration
 │   └── config.py           # Configuration management
 ├── scripts/
 │   ├── train_amazon_reviews.py    # Amazon dataset training
@@ -237,10 +238,10 @@ Interactive API documentation available at:
 - Ensure model file exists in `models/` directory
 - Check logs for specific error messages
 
-**Amazon API Errors**
-- Verify Amazon API credentials
+**Twitter API Errors**
+- Verify Twitter API credentials
 - Check rate limiting status
-- Ensure access key ID and secret access key are valid
+- Ensure bearer token is valid
 
 **NLTK Data Missing**
 - Run: `python -c "import nltk; nltk.download('vader_lexicon')"`

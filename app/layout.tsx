@@ -7,7 +7,7 @@ import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
   title: "Sentiview - Real-time Sentiment Analysis",
-  description: "Analyze sentiment in text and Amazon product reviews with AI-powered insights and visualizations",
+  description: "Analyze sentiment in text and live tweets with AI-powered insights and visualizations",
   generator: "v0.app",
 }
 
@@ -39,7 +39,7 @@ html {
                   Home
                 </a>
                 <a href="/live" className="transition-colors hover:text-foreground/80">
-                  Live Reviews
+                  Live Tweets
                 </a>
               </nav>
             </div>
