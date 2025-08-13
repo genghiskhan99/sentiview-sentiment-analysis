@@ -86,7 +86,6 @@ export default function ResultsPage() {
   const generateMockResult = (text: string): SentimentResult => {
     const lowerText = text.toLowerCase()
 
-    // Simple sentiment detection based on keywords
     const positiveWords = [
       "love",
       "great",
@@ -97,7 +96,12 @@ export default function ResultsPage() {
       "good",
       "happy",
       "best",
-      "phenomenal",
+      "recommend",
+      "quality",
+      "perfect",
+      "outstanding",
+      "satisfied",
+      "pleased",
     ]
     const negativeWords = [
       "hate",
@@ -108,7 +112,10 @@ export default function ResultsPage() {
       "horrible",
       "disappointed",
       "broken",
-      "unhelpful",
+      "damaged",
+      "defective",
+      "waste",
+      "useless",
     ]
 
     const positiveCount = positiveWords.filter((word) => lowerText.includes(word)).length

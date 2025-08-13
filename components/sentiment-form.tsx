@@ -28,9 +28,9 @@ export function SentimentForm({ onAnalyze }: SentimentFormProps) {
   const { toast } = useToast()
 
   const exampleTexts = [
-    "I absolutely loved this movie! The acting was phenomenal and the plot kept me engaged throughout.",
-    "The service was okay, nothing special but not terrible either. Average experience overall.",
-    "This product is completely broken and the customer support is unhelpful. Very disappointed.",
+    "This phone has amazing battery life and the camera quality is outstanding! Highly recommend for anyone looking for a reliable smartphone.",
+    "The headphones are decent for the price. Sound quality is okay but nothing exceptional. They get the job done.",
+    "Terrible product! Arrived damaged and customer service was completely unhelpful. Save your money and buy something else.",
   ]
 
   const handleSubmit = async (e: React.FormEvent) => {

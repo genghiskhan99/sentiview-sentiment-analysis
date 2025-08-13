@@ -114,18 +114,18 @@ class AmazonService:
                 logger.warning(f"Failed to load remote dataset: {e}")
                 # Generate sample reviews as fallback
                 sample_reviews = [
-                    "Great product, highly recommend!",
-                    "Amazing quality and fast shipping",
-                    "Love this item, works perfectly",
-                    "Excellent value for money",
-                    "Outstanding customer service",
-                    "Very pleased with this purchase",
-                    "Good quality but could be better",
-                    "Average product, nothing special",
-                    "Not what I expected",
-                    "Poor quality, disappointed",
-                    "Terrible experience, would not buy again",
-                    "Worst purchase ever made"
+                    "Excellent phone with great battery life and camera quality!",
+                    "Fast shipping and the product works exactly as described",
+                    "Love this headset! Crystal clear audio and comfortable to wear",
+                    "Outstanding value for money, highly recommend this product",
+                    "Great customer service and quick resolution to my issue",
+                    "Very pleased with this purchase, exceeded my expectations",
+                    "Good product overall but the packaging could be better",
+                    "Average quality for the price, nothing special but functional",
+                    "The item works but took longer to arrive than expected",
+                    "Not what I expected based on the description and photos",
+                    "Poor build quality, broke after just a few days of use",
+                    "Worst purchase I've made, complete waste of money"
                 ]
                 df = pd.DataFrame({
                     'input': sample_reviews * (limit // len(sample_reviews) + 1),
