@@ -34,13 +34,14 @@ except OSError:
 
 STOP_WORDS = set(stopwords.words('english'))
 
-# Additional stopwords for social media
-SOCIAL_STOPWORDS = {
-    'rt', 'via', 'amp', 'http', 'https', 'www', 'com', 'co', 'org',
-    'like', 'follow', 'followme', 'retweet', 'please', 'thanks', 'thank'
+# Additional stopwords for social media and reviews
+REVIEW_STOPWORDS = {
+    'product', 'item', 'purchase', 'buy', 'bought', 'order', 'ordered',
+    'amazon', 'delivery', 'shipping', 'price', 'cost', 'money', 'worth',
+    'like', 'follow', 'followme', 'please', 'thanks', 'thank'
 }
 
-STOP_WORDS.update(SOCIAL_STOPWORDS)
+STOP_WORDS.update(REVIEW_STOPWORDS)
 
 
 class TextPreprocessor:

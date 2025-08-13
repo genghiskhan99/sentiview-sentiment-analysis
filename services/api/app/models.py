@@ -17,26 +17,26 @@ class SentimentResponse(BaseModel):
     tokens: List[TokenWeight] = Field(..., description="Most influential tokens")
 
 
-class TweetItem(BaseModel):
-    id: str = Field(..., description="Tweet ID")
-    text: str = Field(..., description="Tweet text")
+class ReviewItem(BaseModel):
+    id: str = Field(..., description="Review ID")
+    text: str = Field(..., description="Review text")
     label: Literal["positive", "negative", "neutral"] = Field(..., description="Sentiment classification")
     score: float = Field(..., ge=0.0, le=1.0, description="Confidence score")
-    created_at: str = Field(..., description="Tweet creation timestamp")
+    created_at: str = Field(..., description="Review creation timestamp")
 
 
-class TweetSummary(BaseModel):
-    pos: int = Field(..., description="Number of positive tweets")
-    neu: int = Field(..., description="Number of neutral tweets")
-    neg: int = Field(..., description="Number of negative tweets")
+class ReviewSummary(BaseModel):
+    pos: int = Field(..., description="Number of positive reviews")
+    neu: int = Field(..., description="Number of neutral reviews")
+    neg: int = Field(..., description="Number of negative reviews")
 
 
-class TweetAnalysisResponse(BaseModel):
-    items: List[TweetItem] = Field(..., description="Analyzed tweets")
-    summary: TweetSummary = Field(..., description="Summary statistics")
+class ReviewAnalysisResponse(BaseModel):
+    items: List[ReviewItem] = Field(..., description="Analyzed reviews")
+    summary: ReviewSummary = Field(..., description="Summary statistics")
 
 
 class HealthResponse(BaseModel):
     status: str = Field(..., description="Service status")
     model_loaded: bool = Field(..., description="Whether ML model is loaded")
-    twitter_enabled: bool = Field(..., description="Whether Twitter integration is enabled")
+    amazon_enabled: bool = Field(..., description="Whether Amazon integration is enabled")
